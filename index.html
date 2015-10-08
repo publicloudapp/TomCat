@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"  dir="ltr">
+<head>    <title>TKTOM</title>
+<script src="js/recorderjs/recorder.js"></script>
+    <script src="js/jungle.js"></script>
+    <script src="js/volume-meter.js"></script>
+    <script src="js/main.js"></script>
+    <style>
+    html# { overflow: hidden; }
+    body# {
+        font: 14pt Arial, sans-serif;
+        background: black;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        width: 100%;
+        margin: 0 0;
+    }
+    body{background-image:url(images/background.jpg);overflow:hidden;no-repeat;background-size:cover;}
+    canvas# {
+        display: inline-block;
+        /*background: #202020;*/
+        width: 95%;
+        height: 45%;
+        /*box-shadow: 0px 0px 10px blue;*/
+    }
+    #controls {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-around;
+        height: 20%;
+        width: 100%;
+    }
+    #record { height: 15vh; }
+    #record.recording {
+        background: red;
+        background: -webkit-radial-gradient(center, ellipse cover, #ff0000 0%,lightgrey 75%,lightgrey 100%,#7db9e8 100%);
+        background: -moz-radial-gradient(center, ellipse cover, #ff0000 0%,lightgrey 75%,lightgrey 100%,#7db9e8 100%);
+        background: radial-gradient(center, ellipse cover, #ff0000 0%,lightgrey 75%,lightgrey 100%,#7db9e8 100%);
+    }
+    #save, #save img { height: 10vh; }
+    #save { opacity: 0.25;}
+    #save[download] { opacity: 1;}
+    #viz {
+        height: 80%;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: center;
+        margin: auto;
+    }
+    @media (orientation: landscape) {
+        body { flex-direction: row;}
+        #controls { flex-direction: column; height: 100%; width: 10%;}
+        #viz { height: 60%; width: 40%;}
+    }
+
+    </style>
+    
+    <style>
+      nav .search {
+      display: none;
+      }
+      .demoFrame header,
+      .demoFrame .footer,
+      .demoFrame h1,
+      .demoFrame .p {
+      display: none !important;
+      }
+      h1 {
+      font-size: 2.6em;
+      }
+      h2, h3 {
+      font-size: 1.7em;
+      }
+      .left {
+      width: 920px !important;
+      padding-bottom: 40px;
+      }
+      div.p {
+      font-size: .8em;
+      font-family: arial;
+      margin-top: -20px;
+      font-style: italic;
+      padding: 10px 0;
+      }
+      .footer {
+      padding: 20px;
+      margin: 20px 0 0 0;
+      background: #f8f8f8;
+      font-weight: bold;
+      font-family: arial;
+      border-top: 1px solid #ccc;
+      }
+      .left > p:first-of-type {
+      background: #ffd987;
+      font-style: italic;
+      padding: 5px 10px;
+      margin-bottom: 40px;
+      }
+      #promoNode {
+      margin: 20px 0;
+      }
+    </style>
+    
+    <style>
+    video { border: 1px solid #ccc; display: block; margin: 0 0 20px 0; }
+    #canvas { margin-top: 20px; border: 1px solid #ccc; display: block; }
+    </style>
+</head>
+    <body>
+      <center>
+        <p><span></span></p>
+        <p><span></span></p>
+        <p><span></span></p>
+        <p><span></span></p>
+        <p><span></span></p><p><span></span></p>
+        <p><span></span></p>
+        <p><span></span></p>
+      <!-- Add the HTML header -->
+      <div id="page">
+      <!-- holds content, will be frequently changed -->
+      <div id="contentHolder">
+      <!-- start the left section if not the homepage -->
+      <section class="left">
+      <!--
+      Ideally these elements aren”t created until it”s confirmed that the
+      client supports video/camera, but for the sake of illustrating the
+      elements involved, they are created with markup (not JavaScript)
+      -->
+      <video id="video" width="640" height="480" autoplay></video>
+      <!--<button id="snap" class="sexyButton">Snap Photo</button>-->
+      <canvas id="canvas" width="0" height="0"></canvas>
+      
+      
+      <script>
+      // Put event listeners into place
+      window.addEventListener("DOMContentLoaded", function() {
+      // Grab elements, create settings, etc.
+      var canvas = document.getElementById("canvas"),
+      context = canvas.getContext("2d"),
+      video = document.getElementById("video"),
+      videoObj = { "video": true },
+      errBack = function(error) {
+      console.log("Video capture error: ", error.code);
+      };
+      // Put video listeners into place
+      if(navigator.getUserMedia) { // Standard
+      navigator.getUserMedia(videoObj, function(stream) {
+      video.src = stream;
+      video.play();
+      }, errBack);
+      } else if(navigator.webkitGetUserMedia) { // WebKit-prefixed
+      navigator.webkitGetUserMedia(videoObj, function(stream){
+      video.src = window.webkitURL.createObjectURL(stream);
+      video.play();
+      }, errBack);
+      }
+      // Trigger photo take
+      document.getElementById("snap").addEventListener("click", function() {
+      context.drawImage(video, 0, 0, 640, 480);
+      });
+      }, false);
+      
+      navigator.getUserMedia({audio:true}, function(e) {
+        context = new audioContext();
+        audioInput = context.createMediaStreamSource(e);	
+        volume = context.createGain();
+        recorder = context.createScriptProcessor(2048, 2, 2);
+        recorder.onaudioprocess = function(e){
+          recordingLength += 2048;
+          recorder.connect (context.destination); 
+        }	
+      }, function(error){});
+      
+      </script>
+      </section>
+      </div>
+      <div id="viz" style="display:none;">
+              <img id="cat1" src="img/1.gif" style=" display:none;" />
+              <img id="cat2" src="img/2.gif" style="" /><br/>
+              <canvas id="analyser" width="200" height="100" style="display:none;"></canvas>
+      </center>
+    </body>
+</html>
